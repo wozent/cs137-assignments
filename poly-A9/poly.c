@@ -95,7 +95,7 @@ struct poly *polyCreate() {
     *p.size_p = 1;
     
     //allocate memory block for coefficient which is double and initial it
-    *p.coefficient = （double*) malloc (sizeof(double));
+    *p.coefficient = (double*) malloc (sizeof(double));
     *p.coefficient = 0.0;
 
     return p;
