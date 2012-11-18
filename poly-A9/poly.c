@@ -33,53 +33,32 @@ double polyEval (struct poly *p, double x);
 
 
 
-int main (void)
-{
-    struct poly *p0 = polySetCoefficient
-                            (polySetCoefficient (polySetCoefficient (
-                            polyCreate() , 0, 4.0), 1, -1.0), 10, 2.0);
-    struct poly *p1 = polyCopy (p0);
-    struct poly *p2, *p3, *p4;
-    
-    printf ("%g\n", polyGetCoefficient (p0, 10));
-    printf ("%g\n", polyGetCoefficient (p0, 100));
-    printf ("%d\n", polyDegree (p0));
-    polyPrint (p0);
-    polyPrint (p1);
-    polySetCoefficient (p1, 2, 1.0/2.0);
-    polyPrint (p1);
-    p2 = polyAdd (p0, p1);
-    polyPrint (p2);
-    p3 = polyMultiply (p0, p1);
-    polyPrint (p3);
-    p4 = polyPrime (p0);
-    polyPrint (p4);
-    printf ("%g\n", polyEval (p0, 0.0));
-    printf ("%g\n", polyEval (p0, 1.0));
-    printf ("%g\n", polyEval (p0, 2.0));
-    p0 = polyDelete (p0);
-    p1 = polyDelete (p1);
-    p2 = polyDelete (p2);
-    p3 = polyDelete (p3);
-    p4 = polyDelete (p4);
-
-//    Sample Output
+//int main (void)
+//{
+//    struct poly *p0 = polySetCoefficient
+//                            (polySetCoefficient (polySetCoefficient (
+//                            polyCreate() , 02, 4.110), 1, -1.0), 120, 2.0);
+//    polyDelete (p0);
+//    polyPrint (p0);
+//
+//
+////    Sample Output
+////    
+////    2
+////    0
+////    10
+////    2x^10 - x + 4
+////    2x^10 - x + 4
+////    2x^10 + 0.5x^2 - x + 4
+////    4x^10 + 0.5x^2 - 2x + 8
+////    4x^20 + x^12 - 4x^11 + 16x^10 - 0.5x^3 + 3x^2 - 8x + 16
+////    20x^9 - 1
+////    4
+////    5
+////    2050
 //    
-//    2
-//    0
-//    10
-//    2x^10 - x + 4
-//    2x^10 - x + 4
-//    2x^10 + 0.5x^2 - x + 4
-//    4x^10 + 0.5x^2 - 2x + 8
-//    4x^20 + x^12 - 4x^11 + 16x^10 - 0.5x^3 + 3x^2 - 8x + 16
-//    20x^9 - 1
-//    4
-//    5
-//    2050
-    
-    return 0;
-}
+//    return 0;
+//}
 
 
 int empty(struct poly *p) {
@@ -104,7 +83,7 @@ struct poly *polyCreate() {
 
 struct poly *polyDelete(struct poly *p) {
     free(p);
-    return NULL;
+    return 0;
 }
 
 
