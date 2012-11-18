@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "poly.h"
 
@@ -20,7 +21,7 @@ struct poly *polyDelete(struct poly *p);
 struct poly *polySetCoefficient (struct poly *p, int i, double value);
 double polyGetCoefficient (struct poly *p, int i);
 int polyDegree (struct poly *p);
-void printMe (int coefficient, double *size_p);
+void printMe (int size_p, double *coefficient);
 void polyPrint (struct poly *p);
 
 //Functional
@@ -88,17 +89,17 @@ int empty(struct poly *p) {
 
 struct poly *polyCreate() {
     //create struct of poly *p
-    struct poly *p;
+    struct poly *create;
     
     //allocate a memory block of size of "struct" we created and initial it
-    *p.size_p = (struct poly*)malloc(sizeof(struct poly));
-    *p.size_p = 1;
+    create = (struct poly*) malloc(sizeof(struct poly));
+    create -> size_p = 1;
     
     //allocate memory block for coefficient which is double and initial it
-    *p.coefficient = (double*) malloc (sizeof(double));
-    *p.coefficient = 0.0;
+    create -> coefficient = (double*) malloc (sizeof(double));
+    *create -> coefficient = 0.0;
 
-    return p;
+    return create;
 }
 
 struct poly *polyDelete(struct poly *p) {
@@ -112,24 +113,24 @@ struct poly *polySetCoefficient (struct poly *p, int i, double value) {
     if (empty(p)) {
         return NULL;
     }
-    //assert if the size of it is not greater than zero
-    assert(*p.size_p > 0);
+    
+    assert (p -> size_p > 0);
     
     //if the poly already exsits, replace it with the given value. otherwise, increase the length of poly by 1 (relocate function).
-    if (*p.size_p > i) *p.coefficient[i] = value;
+    if (p -> size_p > i) p -> coefficient[i] = value;
     else {
-        *p.coefficient = (double*) realloc(*p.coefficient, (i + 1) * sizeof(double));
+        p -> coefficient = (double*) realloc(p -> coefficient, (i + 1) * sizeof(double));
         
         //set all imprintable elements zero
-        for (int buffer = *p.size_p; buffer < i; buffer ++) *p.coefficient[buffer] = 0.0;
+        for (int buffer = p -> size_p; buffer < i; buffer ++) p -> coefficient[buffer] = 0.0;
         
         //set the new poly and update the value of old term
-        *p.size_p = i + 1;
-        *p.coefficient[i] = value;
+        p -> size_p = i + 1;
+        p -> coefficient[i] = value;
     }
     
     //fix the case that the first term is given a ZERO
-    for (int buffer = *p.size_p; *p.coefficient[buffer] == 0 && buffer > 0; buffer --) *p.size_p --;
+    for (int buffer = p -> size_p - 1; p -> coefficient[buffer] == 0 && buffer > 0; buffer --) p -> size_p --;
     
     return p;
 }
@@ -139,19 +140,19 @@ double polyGetCoefficient (struct poly *p, int i) {
     if (empty(p)) return 0;
     
     //2, if it's overflow
-    if (i > *p.size_p - 1) return 0;
+    if (i > p -> size_p - 1) return 0;
     
     //otherwise, return the int i
-    else return *.p.coefficient[i];
+    else return p -> coefficient[i];
 }
 
 int polyDegree (struct poly *p) {
     //in case the given poly is empty
     if (p == NULL) return 0;
-    else return *p.size_p - 1;
+    else return p -> size_p - 1;
 }
 
-void printMe (int *size_p, double coefficient) {
+void printMe (int size_p, double *coefficient) {
     //if it points to empty, print 0
     if (!size_p) {
         printf("0\n");
@@ -160,52 +161,52 @@ void printMe (int *size_p, double coefficient) {
     
     //print terms, check if all terms are 0
     int checkZero = 1;
-    for (int i = coefficient - 1; i > 0; i --) if (size_p[i]) checkZero = 0;
+    for (int i = size_p - 1; i > 0; i --) if (coefficient[i]) checkZero = 0;
     
     //if Not all zero, print the first element, otherwise, print all term by term
-    if (checkZero) printf("%g\n", size_p[0]);
+    if (checkZero) printf("%g\n", coefficient[0]);
     else {
         int buffer = size_p - 1;
-        while (!size_p[buffer]) buffer--;
+        while (!coefficient[buffer]) buffer--;
         
         //check the sign of the first element
-        if (size_p[buffer] < 0) printf("-");
+        if (coefficient[buffer] < 0) printf("-");
         
         for (int i = buffer; i > 1; i --) {
             //print the value of first element
-            if          (size_p[i] == 1)    printf("x^%d"  ,        i);
-            else if     (size_p[i] >  0)    printf("%gx^%d",  a[i], i);
-            else if     (size_p[i] <  0)    printf("%gx^%d", -a[i], i);
-            else if     (size_p[i] == 0)    printf();
-        
+            if       (coefficient[i] == 1)    printf("x^%d", i);
+            else if  (coefficient[i] >  0)    printf("%gx^%d",  coefficient[i], i);
+            else if  (coefficient[i] <  0)    printf("%gx^%d", -coefficient[i], i);
+            else if  (coefficient[i] == 0)    {}
+            
             int j = i - 1;
             //check next sign
-            if          (size_p[j] >  0)    printf(" + ");
-            else if     (size_p[j] <  0)    printf(" - ");
-            else if     (size_p[j] == 0)    printf(     );
+            if       (coefficient[j] >  0)    printf(" + ");
+            else if  (coefficient[j] <  0)    printf(" - ");
+            else if  (coefficient[j] == 0)    {}
         }
         
         //check the 1st element
-        if          (size_p[1] == 1)    printf("x"              );
-        else if     (size_p[1] >  0)    printf("%gx",  size_p[1]);
-        else if     (size_p[1] <  0)    printf("%gx", -size_p[1]);
-        else if     (size_p[1] == 0)    printf(                 );
+        if          (coefficient[1] == 1)    printf("x");
+        else if     (coefficient[1] >  0)    printf("%gx",  coefficient[1]);
+        else if     (coefficient[1] <  0)    printf("%gx", -coefficient[1]);
+        else if     (coefficient[1] == 0)    {}
         
         //check the 0th element
-        if          (size_p[0] >  0)    printf(" + ");
-        else if     (size_p[0] <  0)    printf(" - ");
-        else if     (size_p[0] == 0)    printf(     );
+        if          (coefficient[0] >  0)    printf(" + ");
+        else if     (coefficient[0] <  0)    printf(" - ");
+        else if     (coefficient[0] == 0)    {}
         
         //check the \n
-        if          (size_p[0] >  0)    printf("%g\n",  size_p[0]);
-        else if     (size_p[0] <  0)    printf("%g\n", -size_p[0]);
-        else if     (size_p[0] == 0)    printf("\n"              );
+        if          (coefficient[0] >  0)    printf("%g\n",  coefficient[0]);
+        else if     (coefficient[0] <  0)    printf("%g\n", -coefficient[0]);
+        else if     (coefficient[0] == 0)    printf("\n");
     }
 }
 
 void polyPrint (struct poly *p) {
     if (empty(p)) printf("0");
-    else printMe(*p.size_p, *p.coefficient);
+    else printMe(p -> size_p, p -> coefficient);
 }
 
 
@@ -219,14 +220,14 @@ struct poly *polyCopy (struct poly *p){
     copied = (struct poly*)malloc(sizeof(struct poly));
     
     //Copying!
-    *copied.size_p = *p.size_p;
+    copied -> size_p = p -> size_p;
     
     //allocate the memory for coefficient
-    *copied.coefficient = (double*)malloc(*copied.size_p * sizeof(double));
+    copied -> coefficient = (double*) malloc(copied -> size_p * sizeof(double));
     
     //Copying!
-    for (int buffer = 0; buffer < p->sizep; buffer ++) {
-        *copied.coefficient[i] = *p.coefficient[i];
+    for (int buffer = 0; buffer < p -> size_p; buffer ++) {
+        copied -> coefficient[buffer] = p -> coefficient[buffer];
     }
 
     return copied;
@@ -236,15 +237,15 @@ struct poly *polyAdd (struct poly *p0, struct poly *p1){
     if (empty(p0) || empty(p1))     return NULL;
 
     //if any of them are all zero
-    if (*p0.size_p) return p1;
-    if (*p1.size_p) return p0;
+    if (p0 -> size_p == 0) return p1;
+    if (p1 -> size_p == 0) return p0;
 
     //create two poly, poly with higher and lower degrees, respectively
     struct poly *big;
     struct poly *tiny;
     
     //apply the big one the big one..
-    if (*p0.size_p >= *p1.size_p) {
+    if (p0 -> size_p >= p1 -> size_p) {
         big = p0;
         tiny = p1;
     }
@@ -260,21 +261,21 @@ struct poly *polyAdd (struct poly *p0, struct poly *p1){
     sum = (struct poly*)malloc(sizeof(struct poly));
     
     //sum will have the size of the larger degree one!
-    *sum.size_p = *big.size_p;
+    sum -> size_p = big -> size_p;
     
     //create the coefficient for both
-    double *bigC = *big.coefficient;
-    double *tinyC = *tiny.coefficient;
+    double *bigC = big -> coefficient;
+    double *tinyC = tiny -> coefficient;
     
     //alocate the memory for the sum coefficient
-    *sum.coefficient = (double*) malloc(*sum.size_p * sizeof(double));
+    sum -> coefficient = (double*) malloc(sum -> size_p * sizeof(double));
     
     //create a coefficient for sum
-    double *sumC = *sum.coefficient;
+    double *sumC = sum -> coefficient;
     
     //Calculating!
-    for ( ; tinyC < (*tiny.coefficient + *tiny.size_p); bigC++, tinyC++, sumC++) *sumC = *bigC + *tinyC;
-    for ( ;  bigC < ( *big.coefficient +  *big.size_p); bigC++, sumC++)          *sumC = *bigC;
+    for ( ; tinyC < (tiny -> coefficient + tiny -> size_p); bigC++, tinyC++, sumC++) *sumC = *bigC + *tinyC;
+    for ( ;  bigC < ( big -> coefficient +  big -> size_p); bigC++, sumC++)          *sumC = *bigC;
     
     return sum;
 }
@@ -286,12 +287,12 @@ void multiply(struct poly *product, struct poly *p0, double coefficient, int ite
     int polyBuffer = 0;
     
     //Calculating, multiply each item by using the given variables
-    for (indexBuffer = *product.size_p - size - iterate;
-         indexBuffer < *product.size_p - iterate;
+    for (indexBuffer = product -> size_p - size - iterate;
+         indexBuffer < product -> size_p - iterate;
          indexBuffer ++, polyBuffer ++) {
-        *product.coefficient[indexBuffer]
-            = *product.coefficient[indexBuffer]
-            + *p0.coefficient[polyBuffer]
+        product -> coefficient[indexBuffer]
+            = product -> coefficient[indexBuffer]
+            + p0 -> coefficient[polyBuffer]
             * coefficient;
     }
 }
@@ -303,26 +304,26 @@ struct poly *polyMultiply (struct poly *p0, struct poly *p1){
     struct poly *product = polyCreate();
     
     //set up the length of the product poly
-    *product.size_p = *p0.size_p + *p1.sizep -1;
+    product -> size_p = p0 -> size_p + p1 -> size_p -1;
     
     //Check if the size_p is not greater than 0
-    if (*product.size_p <= 0){
-        *product.size_p = 0;
+    if (product -> size_p <= 0){
+        product -> size_p = 0;
         return product;
     }
     
     //relocate (resize) the memory of the new product poly
-    *product.coefficient = (double*) realloc(*product.coefficient , *product.size_p * sizeof(double));
+    product -> coefficient = (double*) realloc(product -> coefficient , product -> size_p * sizeof(double));
     
     int iterate = 0;
-    for (iterate = 0; iterate < *product.sizep; iterate ++) *product.coefficient[iterate] = 0.0;
+    for (iterate = 0; iterate < product -> size_p; iterate ++) product -> coefficient[iterate] = 0.0;
     iterate = 0;
     
     //use multiply function to do poly multiplication
-    int index_p = *p1.size_p - 1;
-    while(iterate < *p1.size_p) {
-        multiply (product, p0, *p1.coefficient[index_p], iterate, *p0.size_p);
-        indexp  --;
+    int index_p = p1 -> size_p - 1;
+    while(iterate < p1 -> size_p) {
+        multiply (product, p0, p1 -> coefficient[index_p], iterate, p0 -> size_p);
+        index_p --;
         iterate ++;
     }
     return product;
@@ -332,17 +333,17 @@ struct poly *polyPrime (struct poly *p){
     if (empty(p)) return NULL;
     
     //if the size is smaller than 1, return a new created poly
-    if (*p.size_p <= 1) return polyCreate();
+    if (p -> size_p <= 1) return polyCreate();
     
     //otherwise, create a new poly from copying poly p which is given
     struct poly *p2 = polyCopy(p);
     
     //for each coefficient, give it a new coefficient from the buffer+1 term
-    for (int buffer = 0; buffer < *p2.size_p - 1; buffer ++) {
-        *p2.coefficient[buffer] = (*p2.coefficient[buffer + 1]) * (buffer + 1);
+    for (int buffer = 0; buffer < p2 -> size_p - 1; buffer ++) {
+        p2 -> coefficient[buffer] = (p2 -> coefficient[buffer + 1]) * (buffer + 1);
     }
     //cut the length by 1
-    *p2.size_p --;
+    p2 -> size_p --;
     
     return p2;
 }
@@ -350,14 +351,14 @@ struct poly *polyPrime (struct poly *p){
 
 double polyEval (struct poly *p, double x){
     if (empty(p)) return 0;
-    if (*p.size_p == 0) return 0;
+    if (p -> size_p == 0) return 0;
     
     //declear the new coefficient of poly
-    double *coefficient = *p.coefficient + *p.size_p -1;
+    double *coefficient = p -> coefficient + p -> size_p -1;
     
     //Calulating!
-    int index = *p.size_p - 1;
+    int index = p -> size_p - 1;
     double sum = 0.0;
-    for (int i = 0; i < *p.size_p; i ++) sum = sum + p->coef[i] * pow(x,i);
+    for (int i = 0; i < p -> size_p; i ++) sum = sum + p -> coefficient[i] * pow(x,i);
     return sum;
 }
