@@ -6,12 +6,12 @@
 //
 //
 
-#ifndef _poly_h
-#define _poly_h
+#ifndef POLY_H
+#define POLY_H
 
 struct poly {
-    int size_p;
     double *coefficient;
+    int size_p;
 };
 
 

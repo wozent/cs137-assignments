@@ -3,7 +3,7 @@
 //  
 //
 //  Created by Lucas W-Z on 2012-11-17.
-//
+//  Passed at Nov 18 2012 11:34PM
 //
 
 #include <stdio.h>
@@ -21,7 +21,6 @@ struct poly *polyDelete(struct poly *p);
 struct poly *polySetCoefficient (struct poly *p, int i, double value);
 double polyGetCoefficient (struct poly *p, int i);
 int polyDegree (struct poly *p);
-void printMe (int size_p, double *coefficient);
 void polyPrint (struct poly *p);
 
 //Functional
@@ -32,34 +31,40 @@ struct poly *polyPrime (struct poly *p);
 double polyEval (struct poly *p, double x);
 
 
+int main (void)
+{
+    struct poly *p0 = polySetCoefficient (polySetCoefficient (polySetCoefficient (
+                                                                                  polyCreate() , 0, 4.0), 1, -1.0), 10, 2.0);
+    struct poly *p1 = polyCopy (p0);
+    struct poly *p2, *p3, *p4;
+    
+    printf ("%g\n", polyGetCoefficient (p0, 10));
+    printf ("%g\n", polyGetCoefficient (p0, 100));
+    printf ("%d\n", polyDegree (p0));
+    polyPrint (p0);
+    polyPrint (p1);
+    polySetCoefficient (p1, 2, 1.0/2.0);
+    polyPrint (p1);
+    p2 = polyAdd (p0, p1);
+    polyPrint (p2);
+    p3 = polyMultiply (p0, p1);
+    polyPrint (p3);
+    p4 = polyPrime (p0);
+    polyPrint (p4);
+    printf ("%g\n", polyEval (p0, 0.0));
+    printf ("%g\n", polyEval (p0, 1.0));
+    printf ("%g\n", polyEval (p0, 2.0));
+    p0 = polyDelete (p0);
+    p1 = polyDelete (p1);
+    p2 = polyDelete (p2);
+    p3 = polyDelete (p3);
+    p4 = polyDelete (p4);
+    getchar();
+    
+    return 0;
+}
 
-//int main (void)
-//{
-//    struct poly *p0 = polySetCoefficient
-//                            (polySetCoefficient (polySetCoefficient (
-//                            polyCreate() , 02, 4.110), 1, -1.0), 120, 2.0);
-//    polyDelete (p0);
-//    polyPrint (p0);
-//
-//
-////    Sample Output
-////    
-////    2
-////    0
-////    10
-////    2x^10 - x + 4
-////    2x^10 - x + 4
-////    2x^10 + 0.5x^2 - x + 4
-////    4x^10 + 0.5x^2 - 2x + 8
-////    4x^20 + x^12 - 4x^11 + 16x^10 - 0.5x^3 + 3x^2 - 8x + 16
-////    20x^9 - 1
-////    4
-////    5
-////    2050
-//    
-//    return 0;
-//}
-
+ 
 
 int empty(struct poly *p) {
     if (p == NULL) return 1;
@@ -77,12 +82,15 @@ struct poly *polyCreate() {
     //allocate memory block for coefficient which is double and initial it
     create -> coefficient = (double*) malloc (sizeof(double));
     *create -> coefficient = 0.0;
-
+    
     return create;
 }
 
 struct poly *polyDelete(struct poly *p) {
-    free(p);
+    if(p){
+        free(p -> coefficient);
+        free(p);
+    }
     return 0;
 }
 
@@ -131,61 +139,59 @@ int polyDegree (struct poly *p) {
     else return p -> size_p - 1;
 }
 
-void printMe (int size_p, double *coefficient) {
-    //if it points to empty, print 0
-    if (!size_p) {
-        printf("0\n");
-        return;
-    }
-    
-    //print terms, check if all terms are 0
-    int checkZero = 1;
-    for (int i = size_p - 1; i > 0; i --) if (coefficient[i]) checkZero = 0;
-    
-    //if Not all zero, print the first element, otherwise, print all term by term
-    if (checkZero) printf("%g\n", coefficient[0]);
-    else {
-        int buffer = size_p - 1;
-        while (!coefficient[buffer]) buffer--;
-        
-        //check the sign of the first element
-        if (coefficient[buffer] < 0) printf("-");
-        
-        for (int i = buffer; i > 1; i --) {
-            //print the value of first element
-            if       (coefficient[i] == 1)    printf("x^%d", i);
-            else if  (coefficient[i] >  0)    printf("%gx^%d",  coefficient[i], i);
-            else if  (coefficient[i] <  0)    printf("%gx^%d", -coefficient[i], i);
-            else if  (coefficient[i] == 0)    {}
-            
-            int j = i - 1;
-            //check next sign
-            if       (coefficient[j] >  0)    printf(" + ");
-            else if  (coefficient[j] <  0)    printf(" - ");
-            else if  (coefficient[j] == 0)    {}
-        }
-        
-        //check the 1st element
-        if          (coefficient[1] == 1)    printf("x");
-        else if     (coefficient[1] >  0)    printf("%gx",  coefficient[1]);
-        else if     (coefficient[1] <  0)    printf("%gx", -coefficient[1]);
-        else if     (coefficient[1] == 0)    {}
-        
-        //check the 0th element
-        if          (coefficient[0] >  0)    printf(" + ");
-        else if     (coefficient[0] <  0)    printf(" - ");
-        else if     (coefficient[0] == 0)    {}
-        
-        //check the \n
-        if          (coefficient[0] >  0)    printf("%g\n",  coefficient[0]);
-        else if     (coefficient[0] <  0)    printf("%g\n", -coefficient[0]);
-        else if     (coefficient[0] == 0)    printf("\n");
-    }
-}
-
 void polyPrint (struct poly *p) {
     if (empty(p)) printf("0");
-    else printMe(p -> size_p, p -> coefficient);
+    else {
+        
+        if (!p -> size_p) {
+            printf("0\n");
+            return;
+        }
+        
+        //print terms, check if all terms are 0
+        int checkZero = 1;
+        for (int i = p -> size_p - 1; i > 0; i --) if (p -> coefficient[i]) checkZero = 0;
+        
+        //if Not all zero, print the first element, otherwise, print all term by term
+        if (checkZero) printf("%g\n", p -> coefficient[0]);
+        else {
+            int buffer = p -> size_p - 1;
+            while (!p -> coefficient[buffer]) buffer--;
+            
+            //check the sign of the first element
+            if (p -> coefficient[buffer] < 0) printf("-");
+            
+            for (int i = buffer; i > 1; i --) {
+                //print the value of first element
+                if       (p -> coefficient[i] == 1 || p -> coefficient[i] == -1)    printf("x^%d", i);
+                else if  (p -> coefficient[i] >  0 && p -> coefficient[i] !=  1)    printf("%gx^%d",  p -> coefficient[i], i);
+                else if  (p -> coefficient[i] <  0 && p -> coefficient[i] != -1)    printf("%gx^%d", -p -> coefficient[i], i);
+                else if  (p -> coefficient[i] == 0)    {}
+                
+                int j = i - 1;
+                //check next sign
+                if       (p -> coefficient[j] >  0)    printf(" + ");
+                else if  (p -> coefficient[j] <  0)    printf(" - ");
+                else if  (p -> coefficient[j] == 0)    {}
+            }
+            
+            //check the 1st element
+            if          (p -> coefficient[1] == 1 || p -> coefficient[1] == -1)    printf("x");
+            else if     (p -> coefficient[1] >  0 && p -> coefficient[1] !=  1)    printf("%gx",  p -> coefficient[1]);
+            else if     (p -> coefficient[1] <  0 && p -> coefficient[1] != -1)    printf("%gx", -p -> coefficient[1]);
+            else if     (p -> coefficient[1] == 0)    {}
+            
+            //check the 0th element
+            if          (p -> coefficient[0] >  0)    printf(" + ");
+            else if     (p -> coefficient[0] <  0)    printf(" - ");
+            else if     (p -> coefficient[0] == 0)    {}
+            
+            //check the \n
+            if          (p -> coefficient[0] >  0)    printf("%g\n",  p -> coefficient[0]);
+            else if     (p -> coefficient[0] <  0)    printf("%g\n", -p -> coefficient[0]);
+            else if     (p -> coefficient[0] == 0)    printf("\n");
+        }
+    }
 }
 
 
